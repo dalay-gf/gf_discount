@@ -7,8 +7,15 @@
  * @see gf_discount_menu()
  */
 
-function gf_discount_settings_form(){
+function gf_discount_newbie_settings_form(){
   $form = [];
+  $form['newbie_discount_enabled'] = [
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('gf_discount_newbie_enabled', FALSE),
+    '#title' => t('Use discounts for newbie'),
+    '#description' => t('Check to enable discount functionality for newbies.'),
+  ];
+
   $defaults = [ // сумма в тыс. руб. => скидка(в процентах)
     50 => 5, 
     100 => 10
@@ -20,6 +27,13 @@ function gf_discount_settings_form(){
     '#type' => 'fieldset',
     '#title' => t('Newbie discounts'),
     '#description' => t('Setting discounts for a newbie.'),
+    '#states' => [
+      'visible' => [
+        ':input[name="newbie_discount_enabled"]' => [
+          'checked' => TRUE,
+        ],
+      ],
+    ],
   ];
 
   $i = 0;
@@ -69,14 +83,24 @@ function gf_discount_settings_form(){
  *
  * Собираем настройки по дисконтам для новичков в один массив.
  */
-function gf_discount_settings_form_submit($form, &$form_state){
-  $levels = $form['#newbie_discount_levels'];
+function gf_discount_newbie_settings_form_submit($form, &$form_state){
   $values = $form_state['values'];
-  $settings = [];
-  foreach ($levels as $level) {
-    $settings[$values['newbie_level_'. $level . '_sum']] = $values['newbie_level_' . $level . '_discount'];
+  $enabled = $values['newbie_discount_enabled'];
+
+  // Сохраняем настройки только если функционал
+  // скидок для новичков включен.
+  if ($enabled) {
+    $levels = $form['#newbie_discount_levels'];
+    $settings = [];
+
+    foreach ($levels as $level) {
+      $settings[$values['newbie_level_'. $level . '_sum']] = $values['newbie_level_' . $level . '_discount'];
+    }
+
+    variable_set('gf_discount_newbie_discounts', $settings);
   }
-  variable_set('gf_discount_newbie_discounts', $settings);
+
+  variable_set('gf_discount_newbie_enabled', $enabled);
 }
 
 /**

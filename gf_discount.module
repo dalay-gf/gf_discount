@@ -22,7 +22,7 @@ function gf_discount_menu() {
     'title' => 'GF-Discount ',
     'description' => 'Gf-Discount module settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => ['gf_discount_settings_form'],
+    'page arguments' => ['gf_discount_newbie_settings_form'],
     'access arguments' => ['administer discounts'],
     'file' => 'gf_discount.admin.inc',
   ];
@@ -149,8 +149,12 @@ function gf_discount_get_discount_newbie($cart_items, $user=NULL) {
   if (is_null($user)) {
     global $user;
   }
-  // На получение скидки у пользователя должно быть разрешение.
-  if (!user_access('use newbie discounts', $user)) return 0;
+
+  $enabled = variable_get('gf_discount_newbie_enabled', FALSE);
+
+  // Скидки для новичков должны быть включены.
+  // И на получение скидки у пользователя должно быть разрешение.
+  if (!$enabled || !user_access('use newbie discounts', $user)) return 0;
 
   $discount = 0;
   $is_newbie = gf_discount_check_newbie($user->uid);
