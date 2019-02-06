@@ -285,9 +285,9 @@ function gf_discount_get_role_discount(stdClass $user, $without_accumulative=TRU
   }
 
   $roles = $user->roles;
+  $slice = array_intersect_key($role_discounts, $roles);
 
-  if ($roles && $role_discounts) {
-    $slice = array_intersect_key($role_discounts, $roles);
+  if ($slice) {
     // Суммируем скидки для ролей, если есть такое указание 
     // в настройках.
     $summarize = variable_get('gf_discount_summarize_discounts', FALSE);
